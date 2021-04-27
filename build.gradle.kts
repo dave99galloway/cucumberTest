@@ -33,11 +33,6 @@ val cucumberTestApi: Configuration by configurations.getting {
 }
 configurations["cucumberTestRuntimeOnly"].extendsFrom(configurations.runtimeOnly.get())
 
-configurations {
-    cucumberRuntime {
-        extendsFrom testImplementation
-    }
-}
 
 dependencies {
     // Align versions of all Kotlin components
@@ -61,13 +56,8 @@ dependencies {
     api(group = "io.cucumber", name = "cucumber-java8", version = cucumberVersion)
     api(group = "io.cucumber", name = "cucumber-java", version = cucumberVersion)
     api(group = "io.cucumber", name = "cucumber-junit", version = cucumberVersion)
-    api(group = "io.cucumber", name = "cucumber-guice", version = cucumberVersion)
-
-    //appears that the api scope doesn't extend to the cucumberTest package. that's annoying
-    cucumberTestApi(group = "io.cucumber", name = "cucumber-java8", version = cucumberVersion)
-    cucumberTestApi(group = "io.cucumber", name = "cucumber-java", version = cucumberVersion)
-    cucumberTestApi(group = "io.cucumber", name = "cucumber-junit", version = cucumberVersion)
-    cucumberTestApi(group = "io.cucumber", name = "cucumber-guice", version = cucumberVersion)
+    // if guice is on the classpath , it must be configured. leave for now
+    // api(group = "io.cucumber", name = "cucumber-guice", version = cucumberVersion)
 
 }
 
