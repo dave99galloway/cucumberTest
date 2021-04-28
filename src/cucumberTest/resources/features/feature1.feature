@@ -1,3 +1,4 @@
+@Ignore
 Feature: Check Cucumber is configured correctly
   As a tester
   I want cucumber to be configured

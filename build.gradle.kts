@@ -70,14 +70,19 @@ tasks.named<Wrapper>("wrapper") {
 val cucumberTest = task<JavaExec>("cucumberTest") {
     // dependsOn assemble, testClasses // fix later, for now manually call clean & build
 
+    // cucumber cli options
+    val cucumberReportsDir = layout.buildDirectory.dir("cucumber-reports").get().asFile.absolutePath
+    val tags: String = System.getenv("tags") ?: "not @Ignore"
+
+    //core javaexec options
     description = "Runs task cucumber tests."
     group = "verification"
 
     main = "io.cucumber.core.cli.Main"
     classpath = sourceSets["cucumberTest"].runtimeClasspath.plus(sourceSets.main.get().output)
     //.plus(sourceSets.test.get().output) // shouldn't use test src output as we might use test to test the cucumberTest classes
-    val cucumberReportsDir = layout.buildDirectory.dir("cucumber-reports").get().asFile.absolutePath
     args = listOf(
+        "--tags", tags,
         "--plugin", "pretty",
         "--plugin", "html:$cucumberReportsDir/cucumber-html-report.html",
         "--plugin", "json:$cucumberReportsDir/cucumber.json",
