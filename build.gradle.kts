@@ -76,10 +76,11 @@ val cucumberTest = task<JavaExec>("cucumberTest") {
     main = "io.cucumber.core.cli.Main"
     classpath = sourceSets["cucumberTest"].runtimeClasspath.plus(sourceSets.main.get().output)
     //.plus(sourceSets.test.get().output) // shouldn't use test src output as we might use test to test the cucumberTest classes
+    val cucumberReportsDir = layout.buildDirectory.dir("cucumber-reports").get().asFile.absolutePath
     args = listOf(
         "--plugin", "pretty",
-        "--plugin", "html:${layout.buildDirectory.dir("cucumber-html-report").get().asFile.absolutePath}.html",
-        "--plugin", "json:${layout.buildDirectory.file("cucumber.json").get().asFile.absolutePath}",
+        "--plugin", "html:$cucumberReportsDir/cucumber-html-report.html",
+        "--plugin", "json:$cucumberReportsDir/cucumber.json",
         // "--plugin", "progress" // can't use at the same time as 'pretty' as both use stdout and it doesn't make sense
         // to redirect either to a file
     )
