@@ -31,7 +31,8 @@ val cucumberTestImplementation: Configuration by configurations.getting {
 val cucumberTestApi: Configuration by configurations.getting {
     extendsFrom(configurations.api.get())
 }
-configurations["cucumberTestRuntimeOnly"].extendsFrom(configurations.runtimeOnly.get())
+//https://docs.gradle.org/current/userguide/java_testing.html#sec:configuring_java_integration_tests - suggests using runtimeOnly
+configurations["cucumberTestApi"].extendsFrom(configurations.testApi.get())
 
 
 dependencies {
@@ -65,6 +66,27 @@ tasks.named<Wrapper>("wrapper") {
     gradleVersion = "7.0"
     distributionType = Wrapper.DistributionType.ALL
 }
+
+val cucumberTest = task<JavaExec>("cucumberTest") {
+    // dependsOn assemble, testClasses // fix later, for now manually call clean & build
+
+    description = "Runs task cucumber tests."
+    group = "verification"
+
+    main = "io.cucumber.core.cli.Main"
+    classpath = sourceSets["cucumberTest"].runtimeClasspath.plus(sourceSets.main.get().output)
+    //.plus(sourceSets.test.get().output) // shouldn't use test src output as we might use test to test the cucumberTest classes
+    args = listOf(
+        "--plugin", "pretty",
+        "--plugin", "html:${layout.buildDirectory.dir("cucumber-html-report").get().asFile.absolutePath}.html",
+        "--plugin", "json:${layout.buildDirectory.file("cucumber.json").get().asFile.absolutePath}",
+        // "--plugin", "progress" // can't use at the same time as 'pretty' as both use stdout and it doesn't make sense
+        // to redirect either to a file
+    )
+    shouldRunAfter("test")
+}
+
+// tasks.check { dependsOn(integrationTest) }
 
 java {
     sourceCompatibility = JavaVersion.VERSION_1_8

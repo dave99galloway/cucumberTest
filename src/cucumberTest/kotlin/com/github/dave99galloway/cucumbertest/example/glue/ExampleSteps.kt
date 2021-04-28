@@ -13,7 +13,7 @@ class ExampleSteps : En {
         }
 
         Then("some result happens") {
-            // throw Exception("ta da")
+            throw Exception("ta da")
         }
     }
 }
