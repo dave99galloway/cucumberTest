@@ -1,13 +1,4 @@
-import io.github.cdimascio.dotenv.Dotenv
-import io.github.cdimascio.dotenv.dotenv
-
 val cucumberVersion: String by project
-
-buildscript {
-    dependencies {
-        classpath("io.github.cdimascio:java-dotenv:5.2.1")
-    }
-}
 
 plugins {
     // Apply the org.jetbrains.kotlin.jvm Plugin to add support for Kotlin.
@@ -68,22 +59,11 @@ dependencies {
     api(group = "io.cucumber", name = "cucumber-junit", version = cucumberVersion)
     // if guice is on the classpath , it must be configured. leave for now
     // api(group = "io.cucumber", name = "cucumber-guice", version = cucumberVersion)
-
-    api("io.github.cdimascio:java-dotenv:5.2.1")
-
-
 }
 
 tasks.named<Wrapper>("wrapper") {
     gradleVersion = "7.0"
     distributionType = Wrapper.DistributionType.ALL
-}
-
-val env: Dotenv = dotenv {
-    ignoreIfMalformed = true
-    directory = "/Users/dave/git/dave99galloway"
-    filename = ".cucumberTest.env"
-    systemProperties = true
 }
 
 val cucumberTest = task<JavaExec>("cucumberTest") {
@@ -92,9 +72,11 @@ val cucumberTest = task<JavaExec>("cucumberTest") {
     // cucumber cli options
     val cucumberReportsDir = layout.buildDirectory.dir("cucumber-reports").get().asFile.absolutePath
     val me = "cucumberTest" // alias for the "namespace" to use in the env var lookup
-    println("tags from env vars = ${env["$me.tags"]}")
-    env.entries().forEach { println(it) }
-    val tags: String = env["$me.tags"] ?: "not @Ignore"
+    // for this to work with the IDEA run/debug config an the EnvFile plugin, the "experimental integrations" checkbox must be set
+    // if this breaks (as the warning on the checkbox implies it might do), then revert to using Dotenv as per the previous commit
+    val tags: String = System.getenv("$me.tags") ?: "not @Ignore"
+    println("tags = $tags")
+
 
     //core javaexec options
     description = "Runs task cucumber tests."
