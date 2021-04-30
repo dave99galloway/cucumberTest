@@ -1,4 +1,13 @@
+import io.github.cdimascio.dotenv.Dotenv
+import io.github.cdimascio.dotenv.dotenv
+
 val cucumberVersion: String by project
+
+buildscript {
+    dependencies {
+        classpath("io.github.cdimascio:java-dotenv:5.2.1")
+    }
+}
 
 plugins {
     // Apply the org.jetbrains.kotlin.jvm Plugin to add support for Kotlin.
@@ -60,6 +69,9 @@ dependencies {
     // if guice is on the classpath , it must be configured. leave for now
     // api(group = "io.cucumber", name = "cucumber-guice", version = cucumberVersion)
 
+    api("io.github.cdimascio:java-dotenv:5.2.1")
+
+
 }
 
 tasks.named<Wrapper>("wrapper") {
@@ -67,12 +79,22 @@ tasks.named<Wrapper>("wrapper") {
     distributionType = Wrapper.DistributionType.ALL
 }
 
+val env: Dotenv = dotenv {
+    ignoreIfMalformed = true
+    directory = "/Users/dave/git/dave99galloway"
+    filename = ".cucumberTest.env"
+    systemProperties = true
+}
+
 val cucumberTest = task<JavaExec>("cucumberTest") {
     // dependsOn assemble, testClasses // fix later, for now manually call clean & build
 
     // cucumber cli options
     val cucumberReportsDir = layout.buildDirectory.dir("cucumber-reports").get().asFile.absolutePath
-    val tags: String = System.getenv("tags") ?: "not @Ignore"
+    val me = "cucumberTest" // alias for the "namespace" to use in the env var lookup
+    println("tags from env vars = ${env["$me.tags"]}")
+    env.entries().forEach { println(it) }
+    val tags: String = env["$me.tags"] ?: "not @Ignore"
 
     //core javaexec options
     description = "Runs task cucumber tests."

@@ -1,3 +1,4 @@
+@NoTestMeInstead
 Feature: Check Cucumber is configured correctly s2
   As a tester
   I want cucumber to be configured
