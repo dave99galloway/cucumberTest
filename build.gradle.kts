@@ -1,5 +1,3 @@
-import org.jetbrains.kotlin.util.collectionUtils.concat
-
 val cucumberVersion: String by project
 
 plugins {
@@ -78,24 +76,24 @@ val me = "cucumberTest" // alias for the "namespace" to use in the env var looku
 val cucumberTest = task<JavaExec>("cucumberTest") {
     // dependsOn assemble, testClasses // fix later, for now manually call clean & build
 
+    val argsList = mutableListOf<String>()
+
     // cucumber cli options
     // for this to work with the IDEA run/debug config an the EnvFile plugin, the "experimental integrations" checkbox must be set
     // if this breaks (as the warning on the checkbox implies it might do), then revert to using Dotenv as per the previous commit
     val tags: List<String> = listOf("--tags", System.getenv("$me.tags") ?: "not @Ignore")
-    //argsList.addAll(tags)
+    argsList.addAll(tags)
 
     val glue: List<String> = getGlueList()
-    //argsList.addAll(glue)
+    argsList.addAll(glue)
 
-//    val pluginsList: List<String> = listOf(
-//        "--plugin", "pretty",
-//        "--plugin", "html:$cucumberReportsDir/cucumber-html-report.html",
-//        "--plugin", "json:$cucumberReportsDir/cucumber.json",
-//    )
-    //argsList.addAll(plugins)
-
-    val argsList: List<String> = tags.concat(glue)?.toList() //.concat(pluginsList)?.toList()
-        ?: error("list of tags, glue and plugins somehow resolved to null. Data passed: $tags, $glue") //, $pluginsList")
+    argsList.addAll(
+        listOf(
+            "--plugin", "pretty",
+            "--plugin", "html:$cucumberReportsDir/cucumber-html-report.html",
+            "--plugin", "json:$cucumberReportsDir/cucumber.json",
+        )
+    )
 
 
     //core javaexec options
@@ -105,16 +103,7 @@ val cucumberTest = task<JavaExec>("cucumberTest") {
     main = "io.cucumber.core.cli.Main"
     classpath = sourceSets["cucumberTest"].runtimeClasspath.plus(sourceSets.main.get().output)
     //.plus(sourceSets.test.get().output) // shouldn't use test src output as we might use test to test the cucumberTest classes
-    args = argsList.concat(
-        listOf(
-            // "--tags", tags,
-            "--plugin", "pretty",
-            "--plugin", "html:$cucumberReportsDir/cucumber-html-report.html",
-            "--plugin", "json:$cucumberReportsDir/cucumber.json",
-            // "--plugin", "progress" // can't use at the same time as 'pretty' as both use stdout and it doesn't make sense
-            // to redirect either to a file
-        )
-    )?.toList() ?: error("error creating args list")
+    args = argsList.toList()
     //shouldRunAfter("test")
 }
 
