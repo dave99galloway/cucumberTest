@@ -81,19 +81,11 @@ val cucumberTest = task<JavaExec>("cucumberTest") {
     // cucumber cli options
     // for this to work with the IDEA run/debug config an the EnvFile plugin, the "experimental integrations" checkbox must be set
     // if this breaks (as the warning on the checkbox implies it might do), then revert to using Dotenv as per the previous commit
-    val tags: List<String> = listOf("--tags", System.getenv("$me.tags") ?: "not @Ignore")
-    argsList.addAll(tags)
+    argsList.addAll(getTagsList())
 
-    val glue: List<String> = getGlueList()
-    argsList.addAll(glue)
+    argsList.addAll(getGlueList())
 
-    argsList.addAll(
-        listOf(
-            "--plugin", "pretty",
-            "--plugin", "html:$cucumberReportsDir/cucumber-html-report.html",
-            "--plugin", "json:$cucumberReportsDir/cucumber.json",
-        )
-    )
+    argsList.addAll(getPluginsList())
 
 
     //core javaexec options
@@ -149,13 +141,19 @@ fun getGlueList(): List<String> {
     return glueEnv.split(",").map { glueArg -> listOf("--glue", glueArg) }.flatten()
 
 }
-//
-//fun getPluginsList(): List<String> {
-//    return listOf(
-//        "--plugin", "pretty",
-//        "--plugin", "html:$cucumberReportsDir/cucumber-html-report.html",
-//        "--plugin", "json:$cucumberReportsDir/cucumber.json",
-//    )
-//    // "--plugin", "progress" // can't use at the same time as 'pretty' as both use stdout and it doesn't make sense
-//    // to redirect either to a file
-//}
+
+fun getPluginsList(): List<String> {
+    return listOf(
+        // the JSON plugin is mandatory for the masterthought reporting to work, and these others are fairly standard so keep for now
+        "--plugin", "pretty",
+        "--plugin", "html:$cucumberReportsDir/cucumber-html-report.html",
+        "--plugin", "json:$cucumberReportsDir/cucumber.json",
+    )
+    // "--plugin", "progress" // can't use at the same time as 'pretty' as both use stdout and it doesn't make sense
+    // to redirect either to a file
+    //todo: add ability to grab custom plugins as args
+}
+
+fun getTagsList(): List<String> {
+    return listOf("--tags", System.getenv("$me.tags") ?: "not @Ignore")
+}
