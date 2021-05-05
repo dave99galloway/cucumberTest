@@ -76,11 +76,16 @@ val me = "cucumberTest" // alias for the "namespace" to use in the env var looku
 val cucumberTest = task<JavaExec>("cucumberTest") {
     // dependsOn assemble, testClasses // fix later, for now manually call clean & build
 
+    val argsList = mutableListOf<String>()
+
     // cucumber cli options
     // for this to work with the IDEA run/debug config an the EnvFile plugin, the "experimental integrations" checkbox must be set
     // if this breaks (as the warning on the checkbox implies it might do), then revert to using Dotenv as per the previous commit
-    val tags: String = System.getenv("$me.tags") ?: "not @Ignore"
-    println("tags = $tags")
+    argsList.addAll(getTagsList())
+
+    argsList.addAll(getGlueList())
+
+    argsList.addAll(getPluginsList())
 
 
     //core javaexec options
@@ -90,15 +95,8 @@ val cucumberTest = task<JavaExec>("cucumberTest") {
     main = "io.cucumber.core.cli.Main"
     classpath = sourceSets["cucumberTest"].runtimeClasspath.plus(sourceSets.main.get().output)
     //.plus(sourceSets.test.get().output) // shouldn't use test src output as we might use test to test the cucumberTest classes
-    args = listOf(
-        "--tags", tags,
-        "--plugin", "pretty",
-        "--plugin", "html:$cucumberReportsDir/cucumber-html-report.html",
-        "--plugin", "json:$cucumberReportsDir/cucumber.json",
-        // "--plugin", "progress" // can't use at the same time as 'pretty' as both use stdout and it doesn't make sense
-        // to redirect either to a file
-    )
-    shouldRunAfter("test")
+    args = argsList.toList()
+    //shouldRunAfter("test")
 }
 
 // tasks.check { dependsOn(integrationTest) }
@@ -136,3 +134,26 @@ java {
     //    }
 }
 
+fun getGlueList(): List<String> {
+    val glueEnv = System.getenv("$me.glue")
+        ?: return listOf("--glue", "com.github.dave99galloway.cucumbertest.example.glue")
+
+    return glueEnv.split(",").map { glueArg -> listOf("--glue", glueArg) }.flatten()
+
+}
+
+fun getPluginsList(): List<String> {
+    return listOf(
+        // the JSON plugin is mandatory for the masterthought reporting to work, and these others are fairly standard so keep for now
+        "--plugin", "pretty",
+        "--plugin", "html:$cucumberReportsDir/cucumber-html-report.html",
+        "--plugin", "json:$cucumberReportsDir/cucumber.json",
+    )
+    // "--plugin", "progress" // can't use at the same time as 'pretty' as both use stdout and it doesn't make sense
+    // to redirect either to a file
+    //todo: add ability to grab custom plugins as args
+}
+
+fun getTagsList(): List<String> {
+    return listOf("--tags", System.getenv("$me.tags") ?: "not @Ignore")
+}
