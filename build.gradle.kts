@@ -83,9 +83,11 @@ val cucumberTest = task<JavaExec>("cucumberTest") {
     // if this breaks (as the warning on the checkbox implies it might do), then revert to using Dotenv as per the previous commit
     argsList.addAll(getTagsList())
 
-    argsList.addAll(getGlueList())
+    getGlueList()?.let { glueList -> argsList.addAll(glueList) }
 
     argsList.addAll(getPluginsList())
+
+    getFeaturesPath()?.let { featurePath -> argsList.add(featurePath) }
 
 
     //core javaexec options
@@ -95,6 +97,7 @@ val cucumberTest = task<JavaExec>("cucumberTest") {
     main = "io.cucumber.core.cli.Main"
     classpath = sourceSets["cucumberTest"].runtimeClasspath.plus(sourceSets.main.get().output)
     //.plus(sourceSets.test.get().output) // shouldn't use test src output as we might use test to test the cucumberTest classes
+    argsList.forEach { println(it) }
     args = argsList.toList()
     //shouldRunAfter("test")
 }
@@ -134,12 +137,8 @@ java {
     //    }
 }
 
-fun getGlueList(): List<String> {
-    val glueEnv = System.getenv("$me.glue")
-        ?: return listOf("--glue", "com.github.dave99galloway.cucumbertest.example.glue")
-
-    return glueEnv.split(",").map { glueArg -> listOf("--glue", glueArg) }.flatten()
-
+fun getGlueList(): List<String>? {
+    return System.getenv("$me.glue")?.split(",")?.map { glueArg -> listOf("--glue", glueArg) }?.flatten()
 }
 
 fun getPluginsList(): List<String> {
@@ -154,6 +153,21 @@ fun getPluginsList(): List<String> {
     //todo: add ability to grab custom plugins as args
 }
 
+/**
+ * scan the env var for tags. if none are supplied assume we don't want @Ignore tags to run
+ * @return List<String>
+ */
 fun getTagsList(): List<String> {
     return listOf("--tags", System.getenv("$me.tags") ?: "not @Ignore")
+}
+
+/**
+ * parse the env var to get the path to features
+ * e.g. cucumberTest.features="classpath:features/sub-features"
+ * fully qualified file system paths will also work but will probably be a pain in actual usage
+ * @return String? If no path is supplied, then null is returned, and no arg is passed for features,
+ * so the entire classpath will be scanned for features
+ */
+fun getFeaturesPath(): String? {
+    return System.getenv("$me.features")
 }
