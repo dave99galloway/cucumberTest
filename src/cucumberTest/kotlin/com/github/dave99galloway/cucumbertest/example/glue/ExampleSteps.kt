@@ -15,7 +15,7 @@ class ExampleSteps : En {
     }
 
     init {
-        Given("some preconditions") {
+        Given("^some preconditions$") {
             stepScenario.log("something's about to happen")
         }
 
@@ -30,5 +30,6 @@ class ExampleSteps : En {
         Then("some result happens") {
             stepScenario.log("did it work?")
         }
+
     }
 }

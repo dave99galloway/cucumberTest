@@ -1,4 +1,5 @@
 val cucumberVersion: String by project
+val slf4jVersion: String by project
 
 plugins {
     // Apply the org.jetbrains.kotlin.jvm Plugin to add support for Kotlin.
@@ -63,6 +64,12 @@ dependencies {
     api(group = "io.cucumber", name = "cucumber-junit", version = cucumberVersion)
     // if guice is on the classpath , it must be configured. leave for now
     // api(group = "io.cucumber", name = "cucumber-guice", version = cucumberVersion)
+
+    api(group = "org.slf4j", name = "jul-to-slf4j", version = slf4jVersion)
+    api(group = "org.slf4j", name = "slf4j-simple", version = slf4jVersion)
+    api("org.jetbrains.kotlin:kotlin-reflect")
+
+
 }
 
 tasks.named<Wrapper>("wrapper") {
@@ -87,6 +94,9 @@ val cucumberTest = task<JavaExec>("cucumberTest") {
 
     argsList.addAll(getPluginsList())
 
+    // the commercehub plugin creates a new invocation of cucumber for each feature, resulting in separate results etc.
+    // for large test suites, this might be critical in keeping the results json files small enough to process although
+    //
     getFeaturesPath()?.let { featurePath -> argsList.add(featurePath) }
 
 
@@ -144,10 +154,12 @@ fun getGlueList(): List<String>? {
 fun getPluginsList(): List<String> {
     return listOf(
         // the JSON plugin is mandatory for the masterthought reporting to work, and these others are fairly standard so keep for now
-        "--plugin", "pretty",
+        "--plugin", "com.github.dave99galloway.cucumbertest.plugins.ScenarioStepListener",
         "--plugin", "html:$cucumberReportsDir/cucumber-html-report.html",
         "--plugin", "json:$cucumberReportsDir/cucumber.json",
-    )
+        "--plugin", "pretty",
+
+        )
     // "--plugin", "progress" // can't use at the same time as 'pretty' as both use stdout and it doesn't make sense
     // to redirect either to a file
     //todo: add ability to grab custom plugins as args
