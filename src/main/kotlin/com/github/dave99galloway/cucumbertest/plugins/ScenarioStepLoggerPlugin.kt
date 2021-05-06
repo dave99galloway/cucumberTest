@@ -12,6 +12,7 @@ import io.cucumber.plugin.event.PickleStepTestStep
 import io.cucumber.plugin.event.TestCaseStarted
 import io.cucumber.plugin.event.TestRunStarted
 import io.cucumber.plugin.event.TestStepStarted
+import java.io.File
 import java.net.URL
 
 class ScenarioStepListener(private val handler: ScenarioStepHandler = ScenarioStepHandler()) : EventListener {
@@ -39,7 +40,7 @@ class ScenarioStepHandler {
         val uriString: String = if (testCase.uri.toString().startsWith("classpath:")) {
             val featureUrl: URL? =
                 this.javaClass.classLoader.getResource(testCase.uri.toString().replace("classpath:", ""))
-            featureUrl?.path ?: testCase.uri.toString()
+            File(featureUrl?.path ?: testCase.uri.toString()).absolutePath
         } else {
             testCase.uri.toString()
         }
