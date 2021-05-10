@@ -74,7 +74,6 @@ dependencies {
     api(group = "org.slf4j", name = "jul-to-slf4j", version = slf4jVersion)
     api(group = "org.slf4j", name = "slf4j-simple", version = slf4jVersion)
     api("org.jetbrains.kotlin:kotlin-reflect")
-
 }
 
 tasks.named<Wrapper>("wrapper") {
@@ -99,11 +98,9 @@ val cucumberTest = task<JavaExec>("cucumberTest") {
 
     argsList.addAll(getPluginsList())
 
-    // the commercehub plugin creates a new invocation of cucumber for each feature, resulting in separate results etc.
-    // for large test suites, this might be critical in keeping the results json files small enough to process although
-    //
-    getFeaturesPath()?.let { featurePath -> argsList.add(featurePath) }
+    getOptionsList()?.let { optionalArgs -> argsList.addAll(optionalArgs) }
 
+    getFeaturesPath()?.let { featurePath -> argsList.add(featurePath) }
 
     //core javaexec options
     description = "Runs task cucumber tests."
@@ -191,4 +188,16 @@ fun getTagsList(): List<String> {
  */
 fun getFeaturesPath(): String? {
     return System.getenv("$me.features")
+}
+
+
+/**
+ * parse the env var to get additional miscellaneous options. these are comma separated.
+ * to do a dry run in monochrome mode add this to the env var / file
+ * cucumberTest.options="-m,--dry-run"
+ * full list of options is at https://github.com/cucumber/cucumber-jvm/blob/main/core/src/main/resources/io/cucumber/core/options/USAGE.txt
+ * @return List<String>?
+ */
+fun getOptionsList(): List<String>? {
+    return System.getenv("$me.options")?.split(",")
 }
