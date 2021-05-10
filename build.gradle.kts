@@ -157,16 +157,21 @@ fun getGlueList(): List<String>? {
 }
 
 fun getPluginsList(): List<String> {
-    return listOf(
-        "--plugin", "com.github.dave99galloway.cucumbertest.plugins.ScenarioStepListener",
-        // the JSON plugin is mandatory for the masterthought reporting to work, and these others are fairly standard so keep for now
-        "--plugin", "html:$cucumberReportsDir/cucumber-html-report.html",
+    val pluginsList = mutableListOf<String>()
+    val corePlugins = listOf(
         "--plugin", "json:$cucumberReportsDir/cucumber.json",
         "--plugin", "pretty",
     )
-    // "--plugin", "progress" // can't use at the same time as 'pretty' as both use stdout and it doesn't make sense
-    // to redirect either to a file
-    //todo: add ability to grab custom plugins as args
+    pluginsList.addAll(corePlugins)
+    // to add the scenario Step listener and html reports add this to the environment variables / .env file
+    /*
+        cucumberTest.plugins="com.github.dave99galloway.cucumbertest.plugins.ScenarioStepListener,html:build/cucumber-reports/cucumber-html-report.html"
+     */
+    // note that you need to know that the output dir is build/cucumber-reports
+    val optionalPlugins =
+        System.getenv("$me.plugins")?.split(",")?.map { glueArg -> listOf("--plugin", glueArg) }?.flatten()
+    optionalPlugins?.let { plugins -> pluginsList.addAll(plugins) }
+    return pluginsList
 }
 
 /**
