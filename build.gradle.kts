@@ -65,10 +65,15 @@ dependencies {
     // if guice is on the classpath , it must be configured. leave for now
     // api(group = "io.cucumber", name = "cucumber-guice", version = cucumberVersion)
 
+    // according to http://slf4j.org/manual.html#libraries only the slf4j-api dependency should be declared transitively
+    // in libraries such as this. a goal of this framework is to be "batteries included" so we might well end up
+    // deliberately violating this rule
+    api(group = "org.slf4j", name = "slf4j-api", version = slf4jVersion)
+    // use the simplest logging solution for now, although we might want to look at changing this so we can add dynamic
+    // FileHandlers for reporting Scenario results to 3rd party tools in bulk
     api(group = "org.slf4j", name = "jul-to-slf4j", version = slf4jVersion)
     api(group = "org.slf4j", name = "slf4j-simple", version = slf4jVersion)
     api("org.jetbrains.kotlin:kotlin-reflect")
-
 
 }
 
@@ -153,13 +158,12 @@ fun getGlueList(): List<String>? {
 
 fun getPluginsList(): List<String> {
     return listOf(
-        // the JSON plugin is mandatory for the masterthought reporting to work, and these others are fairly standard so keep for now
         "--plugin", "com.github.dave99galloway.cucumbertest.plugins.ScenarioStepListener",
+        // the JSON plugin is mandatory for the masterthought reporting to work, and these others are fairly standard so keep for now
         "--plugin", "html:$cucumberReportsDir/cucumber-html-report.html",
         "--plugin", "json:$cucumberReportsDir/cucumber.json",
         "--plugin", "pretty",
-
-        )
+    )
     // "--plugin", "progress" // can't use at the same time as 'pretty' as both use stdout and it doesn't make sense
     // to redirect either to a file
     //todo: add ability to grab custom plugins as args
