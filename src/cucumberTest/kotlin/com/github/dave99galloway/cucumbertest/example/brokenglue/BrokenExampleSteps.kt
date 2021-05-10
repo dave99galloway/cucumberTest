@@ -16,7 +16,7 @@ class BrokenExampleSteps : En {
     }
 
     init {
-        Given("some preconditions") {
+        Given("^some preconditions$") {
             stepScenario.log("something's about to happen")
         }
 

@@ -1,4 +1,5 @@
 val cucumberVersion: String by project
+val slf4jVersion: String by project
 
 plugins {
     // Apply the org.jetbrains.kotlin.jvm Plugin to add support for Kotlin.
@@ -63,6 +64,17 @@ dependencies {
     api(group = "io.cucumber", name = "cucumber-junit", version = cucumberVersion)
     // if guice is on the classpath , it must be configured. leave for now
     // api(group = "io.cucumber", name = "cucumber-guice", version = cucumberVersion)
+
+    // according to http://slf4j.org/manual.html#libraries only the slf4j-api dependency should be declared transitively
+    // in libraries such as this. a goal of this framework is to be "batteries included" so we might well end up
+    // deliberately violating this rule
+    api(group = "org.slf4j", name = "slf4j-api", version = slf4jVersion)
+    // use the simplest logging solution for now, although we might want to look at changing this so we can add dynamic
+    // FileHandlers for reporting Scenario results to 3rd party tools in bulk
+    api(group = "org.slf4j", name = "jul-to-slf4j", version = slf4jVersion)
+    api(group = "org.slf4j", name = "slf4j-simple", version = slf4jVersion)
+    api("org.jetbrains.kotlin:kotlin-reflect")
+
 }
 
 tasks.named<Wrapper>("wrapper") {
@@ -83,9 +95,14 @@ val cucumberTest = task<JavaExec>("cucumberTest") {
     // if this breaks (as the warning on the checkbox implies it might do), then revert to using Dotenv as per the previous commit
     argsList.addAll(getTagsList())
 
-    argsList.addAll(getGlueList())
+    getGlueList()?.let { glueList -> argsList.addAll(glueList) }
 
     argsList.addAll(getPluginsList())
+
+    // the commercehub plugin creates a new invocation of cucumber for each feature, resulting in separate results etc.
+    // for large test suites, this might be critical in keeping the results json files small enough to process although
+    //
+    getFeaturesPath()?.let { featurePath -> argsList.add(featurePath) }
 
 
     //core javaexec options
@@ -95,6 +112,7 @@ val cucumberTest = task<JavaExec>("cucumberTest") {
     main = "io.cucumber.core.cli.Main"
     classpath = sourceSets["cucumberTest"].runtimeClasspath.plus(sourceSets.main.get().output)
     //.plus(sourceSets.test.get().output) // shouldn't use test src output as we might use test to test the cucumberTest classes
+    argsList.forEach { println(it) }
     args = argsList.toList()
     //shouldRunAfter("test")
 }
@@ -134,26 +152,38 @@ java {
     //    }
 }
 
-fun getGlueList(): List<String> {
-    val glueEnv = System.getenv("$me.glue")
-        ?: return listOf("--glue", "com.github.dave99galloway.cucumbertest.example.glue")
-
-    return glueEnv.split(",").map { glueArg -> listOf("--glue", glueArg) }.flatten()
-
+fun getGlueList(): List<String>? {
+    return System.getenv("$me.glue")?.split(",")?.map { glueArg -> listOf("--glue", glueArg) }?.flatten()
 }
 
 fun getPluginsList(): List<String> {
     return listOf(
+        "--plugin", "com.github.dave99galloway.cucumbertest.plugins.ScenarioStepListener",
         // the JSON plugin is mandatory for the masterthought reporting to work, and these others are fairly standard so keep for now
-        "--plugin", "pretty",
         "--plugin", "html:$cucumberReportsDir/cucumber-html-report.html",
         "--plugin", "json:$cucumberReportsDir/cucumber.json",
+        "--plugin", "pretty",
     )
     // "--plugin", "progress" // can't use at the same time as 'pretty' as both use stdout and it doesn't make sense
     // to redirect either to a file
     //todo: add ability to grab custom plugins as args
 }
 
+/**
+ * scan the env var for tags. if none are supplied assume we don't want @Ignore tags to run
+ * @return List<String>
+ */
 fun getTagsList(): List<String> {
     return listOf("--tags", System.getenv("$me.tags") ?: "not @Ignore")
+}
+
+/**
+ * parse the env var to get the path to features
+ * e.g. cucumberTest.features="classpath:features/sub-features"
+ * fully qualified file system paths will also work but will probably be a pain in actual usage
+ * @return String? If no path is supplied, then null is returned, and no arg is passed for features,
+ * so the entire classpath will be scanned for features
+ */
+fun getFeaturesPath(): String? {
+    return System.getenv("$me.features")
 }
