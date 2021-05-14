@@ -110,6 +110,15 @@ interface CucumberTestPluginExtension {
      */
     val glue: Property<String?>
 
+    /**
+     * comma separated list of plugins to add. The core options of "json:$cucumberReportsDir/cucumber.json"
+     * and "pretty" are used regardless of whether any additional plugins are specified here.
+     * DO NOT add the "--plugin" prefix args here, the cucumberTest task will do this
+     */
+    val plugins: Property<String?>
+
+    val options: Property<String?>
+
 }
 
 class CucumberTestPlugin : Plugin<Project> {
@@ -156,9 +165,10 @@ class CucumberTestPlugin : Plugin<Project> {
 
                 cucumberTestEnvVarNamespace.getGlueList(extension)?.let { glueList -> argsList.addAll(glueList) }
 
-                argsList.addAll(cucumberTestEnvVarNamespace.getPluginsList(cucumberReportsDir))
+                argsList.addAll(cucumberTestEnvVarNamespace.getPluginsList(cucumberReportsDir, extension))
 
-                cucumberTestEnvVarNamespace.getOptionsList()?.let { optionalArgs -> argsList.addAll(optionalArgs) }
+                cucumberTestEnvVarNamespace.getOptionsList(extension)
+                    ?.let { optionalArgs -> argsList.addAll(optionalArgs) }
 
                 cucumberTestEnvVarNamespace.getFeaturesPath(extension)?.let { featurePath -> argsList.add(featurePath) }
 
@@ -205,7 +215,7 @@ class CucumberTestPlugin : Plugin<Project> {
             ?.map { glueArg -> listOf("--glue", glueArg) }?.flatten()
     }
 
-    fun String.getPluginsList(cucumberReportsDir: String): List<String> {
+    fun String.getPluginsList(cucumberReportsDir: String, extension: CucumberTestPluginExtension): List<String> {
         val pluginsList = mutableListOf<String>()
         val corePlugins = listOf(
             "--plugin", "json:$cucumberReportsDir/cucumber.json",
@@ -218,7 +228,9 @@ class CucumberTestPlugin : Plugin<Project> {
          */
         // note that you need to know that the output dir is build/cucumber-reports
         val optionalPlugins =
-            System.getenv("${this}.plugins")?.split(",")?.map { glueArg -> listOf("--plugin", glueArg) }?.flatten()
+            (extension.plugins.orNull ?: System.getenv("${this}.plugins"))?.split(",")
+                ?.map { glueArg -> listOf("--plugin", glueArg) }
+                ?.flatten()
         optionalPlugins?.let { plugins -> pluginsList.addAll(plugins) }
         return pluginsList
     }
@@ -253,8 +265,8 @@ class CucumberTestPlugin : Plugin<Project> {
      * full list of options is at https://github.com/cucumber/cucumber-jvm/blob/main/core/src/main/resources/io/cucumber/core/options/USAGE.txt
      * @return List<String>?
      */
-    fun String.getOptionsList(): List<String>? {
-        return System.getenv("${this}.options")?.split(",")
+    fun String.getOptionsList(extension: CucumberTestPluginExtension): List<String>? {
+        return (extension.options.orNull ?: System.getenv("${this}.options"))?.split(",")
     }
 }
 
@@ -262,13 +274,17 @@ apply<CucumberTestPlugin>()
 
 configure<CucumberTestPluginExtension> {
     // this doesn't currently work as it happens too late. might work when cucumberReports is added as a task in the same plugin
-    cucumberReportsDir.set(layout.projectDirectory.dir(".gradle").asFile)
+    // cucumberReportsDir.set(layout.projectDirectory.dir(".gradle").asFile)
     // tags.set("@DataTable or @DocString")
     // either of these will work
-//    features.set("/Users/dave/git/dave99galloway/cucumberTest/src/cucumberTest/resources/features/feature2.feature")
-//    features.set("classpath:features/feature2.feature")
+    // features.set("/Users/dave/git/dave99galloway/cucumberTest/src/cucumberTest/resources/features/feature2.feature")
+    // features.set("classpath:features/feature2.feature")
     // this works fine
-    //glue.set("com.github.dave99galloway.cucumbertest.example.brokenglue")
+    // glue.set("com.github.dave99galloway.cucumbertest.example.brokenglue")
+    // plugins.set("html:build/cucumber-reports/cucumber-html-report.html")
+    // plugins.set("com.github.dave99galloway.cucumbertest.plugins.ScenarioStepListener")
+    // options.set("-m,--dry-run")
+    // options.set("-m")
 }
 
 // configuration at this level isn't really interesting unless we customise the task
