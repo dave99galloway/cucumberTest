@@ -101,9 +101,14 @@ interface CucumberTestPluginExtension {
     val tags: Property<String>
 
     /**
-     * optional path to searh for features. If none, then the whole classpath is searched for features
+     * optional path to search for features. If none, then the whole classpath is searched for features
      */
     val features: Property<String?>
+
+    /**
+     * comma separated list of packages to search for step defs in. If None, the whole classpath is searched
+     */
+    val glue: Property<String?>
 
 }
 
@@ -149,7 +154,7 @@ class CucumberTestPlugin : Plugin<Project> {
                 // if this breaks (as the warning on the checkbox implies it might do), then revert to using Dotenv as per the previous commit
                 argsList.addAll(cucumberTestEnvVarNamespace.getTagsList(extension))
 
-                cucumberTestEnvVarNamespace.getGlueList()?.let { glueList -> argsList.addAll(glueList) }
+                cucumberTestEnvVarNamespace.getGlueList(extension)?.let { glueList -> argsList.addAll(glueList) }
 
                 argsList.addAll(cucumberTestEnvVarNamespace.getPluginsList(cucumberReportsDir))
 
@@ -163,7 +168,6 @@ class CucumberTestPlugin : Plugin<Project> {
                 //.plus(sourceSets.test.get().output) // shouldn't use test src output as we might use test to test the cucumberTest classes
 
                 argsList.forEach { println(it) }
-
 
                 args = argsList.toList()
 
@@ -196,8 +200,9 @@ class CucumberTestPlugin : Plugin<Project> {
         System.getenv("${this}.cucumberReportsFolderName") ?: "cucumber-reports"
 
 
-    fun String.getGlueList(): List<String>? {
-        return System.getenv("${this}.glue")?.split(",")?.map { glueArg -> listOf("--glue", glueArg) }?.flatten()
+    fun String.getGlueList(extension: CucumberTestPluginExtension): List<String>? {
+        return (extension.glue.orNull ?: System.getenv("${this}.glue"))?.split(",")
+            ?.map { glueArg -> listOf("--glue", glueArg) }?.flatten()
     }
 
     fun String.getPluginsList(cucumberReportsDir: String): List<String> {
@@ -256,12 +261,14 @@ class CucumberTestPlugin : Plugin<Project> {
 apply<CucumberTestPlugin>()
 
 configure<CucumberTestPluginExtension> {
+    // this doesn't currently work as it happens too late. might work when cucumberReports is added as a task in the same plugin
     cucumberReportsDir.set(layout.projectDirectory.dir(".gradle").asFile)
     // tags.set("@DataTable or @DocString")
     // either of these will work
 //    features.set("/Users/dave/git/dave99galloway/cucumberTest/src/cucumberTest/resources/features/feature2.feature")
 //    features.set("classpath:features/feature2.feature")
-
+    // this works fine
+    //glue.set("com.github.dave99galloway.cucumbertest.example.brokenglue")
 }
 
 // configuration at this level isn't really interesting unless we customise the task
