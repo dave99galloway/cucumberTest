@@ -1,3 +1,5 @@
+import Cucumber_test_plugin_gradle.CucumberTestPluginExtension
+
 val cucumberVersion: String by project
 val slf4jVersion: String by project
 
@@ -87,22 +89,23 @@ tasks.named<Wrapper>("wrapper") {
 
 
 //
-//apply<CucumberTestPlugin>()
-//
-//configure<CucumberTestPluginExtension> {
+//apply<CucumberTestPlugin>() // now applied in plugins block
+// this now works even though the plugin is now defined in the buildSrc. whoop!
+// however, it would be better to configure the task rather than the plugin
+configure<CucumberTestPluginExtension> {
 //    // this doesn't currently work as it happens too late. might work when cucumberReports is added as a task in the same plugin
 //    // cucumberReportsDir.set(layout.projectDirectory.dir(".gradle").asFile)
-//    // tags.set("@DataTable or @DocString")
+//     tags.set("@DataTable or @DocString")
 //    // either of these will work
 //    // features.set("/Users/dave/git/dave99galloway/cucumberTest/src/cucumberTest/resources/features/feature2.feature")
-//    // features.set("classpath:features/feature2.feature")
+//     features.set("classpath:features/feature2.feature")
 //    // this works fine
-//    // glue.set("com.github.dave99galloway.cucumbertest.example.brokenglue")
+//     glue.set("com.github.dave99galloway.cucumbertest.example.glue")
 //    // plugins.set("html:build/cucumber-reports/cucumber-html-report.html")
 //    // plugins.set("com.github.dave99galloway.cucumbertest.plugins.ScenarioStepListener")
 //    // options.set("-m,--dry-run")
 //    // options.set("-m")
-//}
+}
 
 // configuration at this level isn't really interesting unless we customise the task
 //tasks.named<JavaExec>("cucumberTest") {
