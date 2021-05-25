@@ -1,36 +1,40 @@
 val cucumberVersion: String by project
 
+
 plugins {
-    // Apply the org.jetbrains.kotlin.jvm Plugin to add support for Kotlin.
-    id("org.jetbrains.kotlin.jvm") version "1.4.31"
 
     // Apply the java-library plugin for API and implementation separation.
     `java-library`
-
-//    // https://github.com/SpacialCircumstances/gradle-cucumber-reporting
-//    id("com.github.spacialcircumstances.gradle-cucumber-reporting") version "0.1.23"
-
-    `kotlin-dsl`
-
+//
+//    // Apply the org.jetbrains.kotlin.jvm Plugin to add support for Kotlin.
+//    id("org.jetbrains.kotlin.jvm") version "1.4.31"
 
 }
 
-repositories {
-    // Use Maven Central for resolving dependencies.
-    mavenCentral()
+
+sourceSets {
+    create("cucumberTest") {
+        compileClasspath += sourceSets.main.get().output
+        runtimeClasspath += sourceSets.main.get().output
+    }
+    sourceSets.test.configure {
+        compileClasspath += sourceSets["cucumberTest"].output
+        runtimeClasspath += sourceSets["cucumberTest"].output
+    }
 }
 
-//sourceSets {
-//    create("cucumberTest") {
-//        compileClasspath += sourceSets.main.get().output
-//        runtimeClasspath += sourceSets.main.get().output
-//    }
-//    sourceSets.test.configure {
-//        compileClasspath += sourceSets["cucumberTest"].output
-//        runtimeClasspath += sourceSets["cucumberTest"].output
-//    }
-//}
+val cucumberTestImplementation: Configuration by configurations.getting {
+    extendsFrom(configurations.implementation.get())
+}
 
+val cucumberTestApi: Configuration by configurations.getting {
+    extendsFrom(configurations.api.get())
+}
+//https://docs.gradle.org/current/userguide/java_testing.html#sec:configuring_java_integration_tests - suggests using runtimeOnly
+//configurations["cucumberTestApi"].extendsFrom(configurations.testApi.get())
+
+
+//
 //val cucumberTestImplementation: Configuration by configurations.getting {
 //    extendsFrom(configurations.implementation.get())
 //}
@@ -39,7 +43,8 @@ repositories {
 //    extendsFrom(configurations.api.get())
 //}
 ////https://docs.gradle.org/current/userguide/java_testing.html#sec:configuring_java_integration_tests - suggests using runtimeOnly
-//configurations["cucumberTestApi"].extendsFrom(configurations.testApi.get())
+configurations["cucumberTestApi"].extendsFrom(configurations["testApi"])//note this is different from when we were in the top level build file
+////configurations["cucumberTestApi"].extendsFrom(configurations.testApi.get())
 
 
 dependencies {
@@ -169,9 +174,7 @@ open class CucumberTestPlugin : Plugin<Project> {
 
                 //core javaexec options
                 classpath =
-                        //project.sourceSets["cucumberTest"].runtimeClasspath.plus(
-                    project.sourceSets.main.get().output
-                //)
+                    project.sourceSets["cucumberTest"].runtimeClasspath.plus(project.sourceSets.main.get().output)
                 //.plus(sourceSets.test.get().output) // shouldn't use test src output as we might use test to test the cucumberTest classes
 
                 argsList.forEach { println(it) }
@@ -320,12 +323,3 @@ configure<CucumberTestPluginExtension> {
 //    //  directorySuffix: String. Sets a suffix for directories.
 //}
 
-
-java {
-    sourceCompatibility = JavaVersion.VERSION_1_8
-    targetCompatibility = JavaVersion.VERSION_1_8
-    // The new Java toolchain feature cannot be used at the project level in combination with source and/or target compatibility
-    //    toolchain {
-    //        languageVersion.set(JavaLanguageVersion.of(8))
-    //    }
-}

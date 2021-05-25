@@ -11,6 +11,10 @@ plugins {
 //    // https://github.com/SpacialCircumstances/gradle-cucumber-reporting
 //    id("com.github.spacialcircumstances.gradle-cucumber-reporting") version "0.1.23"
 
+    //cucumber-test-plugin
+    `cucumber-test-plugin`
+
+
 }
 
 repositories {
@@ -18,26 +22,26 @@ repositories {
     mavenCentral()
 }
 
-sourceSets {
-    create("cucumberTest") {
-        compileClasspath += sourceSets.main.get().output
-        runtimeClasspath += sourceSets.main.get().output
-    }
-    sourceSets.test.configure {
-        compileClasspath += sourceSets["cucumberTest"].output
-        runtimeClasspath += sourceSets["cucumberTest"].output
-    }
-}
+//sourceSets {
+//    create("cucumberTest") {
+//        compileClasspath += sourceSets.main.get().output
+//        runtimeClasspath += sourceSets.main.get().output
+//    }
+//    sourceSets.test.configure {
+//        compileClasspath += sourceSets["cucumberTest"].output
+//        runtimeClasspath += sourceSets["cucumberTest"].output
+//    }
+//}
 
-val cucumberTestImplementation: Configuration by configurations.getting {
-    extendsFrom(configurations.implementation.get())
-}
-
-val cucumberTestApi: Configuration by configurations.getting {
-    extendsFrom(configurations.api.get())
-}
-//https://docs.gradle.org/current/userguide/java_testing.html#sec:configuring_java_integration_tests - suggests using runtimeOnly
-configurations["cucumberTestApi"].extendsFrom(configurations.testApi.get())
+//val cucumberTestImplementation: Configuration by configurations.getting {
+//    extendsFrom(configurations.implementation.get())
+//}
+//
+//val cucumberTestApi: Configuration by configurations.getting {
+//    extendsFrom(configurations.api.get())
+//}
+////https://docs.gradle.org/current/userguide/java_testing.html#sec:configuring_java_integration_tests - suggests using runtimeOnly
+//configurations["cucumberTestApi"].extendsFrom(configurations.testApi.get())
 
 
 dependencies {
