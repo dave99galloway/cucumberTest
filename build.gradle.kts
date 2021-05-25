@@ -8,8 +8,8 @@ plugins {
     // Apply the java-library plugin for API and implementation separation.
     `java-library`
 
-    // https://github.com/SpacialCircumstances/gradle-cucumber-reporting
-    id("com.github.spacialcircumstances.gradle-cucumber-reporting") version "0.1.23"
+//    // https://github.com/SpacialCircumstances/gradle-cucumber-reporting
+//    id("com.github.spacialcircumstances.gradle-cucumber-reporting") version "0.1.23"
 
 }
 
