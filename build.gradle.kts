@@ -10,41 +10,16 @@ plugins {
     // Apply the java-library plugin for API and implementation separation.
     `java-library`
 
-//    // https://github.com/SpacialCircumstances/gradle-cucumber-reporting
-//    id("com.github.spacialcircumstances.gradle-cucumber-reporting") version "0.1.23"
+    // https://github.com/SpacialCircumstances/gradle-cucumber-reporting
+    id("com.github.spacialcircumstances.gradle-cucumber-reporting") version "0.1.23"
 
-    //cucumber-test-plugin
     `cucumber-test-plugin`
-
-
 }
 
 repositories {
     // Use Maven Central for resolving dependencies.
     mavenCentral()
 }
-
-//sourceSets {
-//    create("cucumberTest") {
-//        compileClasspath += sourceSets.main.get().output
-//        runtimeClasspath += sourceSets.main.get().output
-//    }
-//    sourceSets.test.configure {
-//        compileClasspath += sourceSets["cucumberTest"].output
-//        runtimeClasspath += sourceSets["cucumberTest"].output
-//    }
-//}
-
-//val cucumberTestImplementation: Configuration by configurations.getting {
-//    extendsFrom(configurations.implementation.get())
-//}
-//
-//val cucumberTestApi: Configuration by configurations.getting {
-//    extendsFrom(configurations.api.get())
-//}
-////https://docs.gradle.org/current/userguide/java_testing.html#sec:configuring_java_integration_tests - suggests using runtimeOnly
-//configurations["cucumberTestApi"].extendsFrom(configurations.testApi.get())
-
 
 dependencies {
     // Align versions of all Kotlin components
@@ -115,34 +90,34 @@ configure<CucumberTestPluginExtension> {
 //}
 
 //
-//cucumberReports {
+cucumberReports {
 //    // get properties set by the CucumberTestPlugin.cucumberTest task in the project extra properties
 //    // there's probably a better, more typesafe way of doing this,
 //    // and we need to configure fallbacks in case these aren't set by CucumberTestPlugin.cucumberTest
-//    val cucumberReportsDir: String = project.extra.get("cucumberReportsDir") as String
-//    val reportMe = "${project.extra.get("cucumberTestEnvVarNamespace")}.cucumberReports"
-//
-//    outputDir = file(cucumberReportsDir)
-//    buildId = System.getenv("$reportMe.buildId") ?: System.currentTimeMillis().toString()
-//    reports = files("$cucumberReportsDir/cucumber.json")
-//    testTasksFinalizedByReport = false
-//    runWithJenkins = System.getenv("$reportMe.runWithJenkins").toBoolean()
-//    projectNameOverride = System.getenv("$reportMe.projectNameOverride")
-//    //todo: enable parameterization of this path
-//    val trendsPath = if (System.getenv("$reportMe.trends").toBoolean()) layout.projectDirectory.dir(".gradle")
-//        .file("cucumberReports.trends.json").asFile else null
-//    trends = trendsPath
-//    val trendsLimitValue = System.getenv("$reportMe.trendsLimit")
-//    trendsLimit = trendsLimitValue?.toInt() ?: 0
-//    //  todo: enable setting these configurations via env vars (or other)
-//    //  classifications: A map with <String, String> pairs that are added to the HTML report, for example os name etc.
-//    //                   Use the method classification to add a single classification.
-//    //                   Setting this property directly will overwrite old classifications.
-//    //  excludeTags: A List<String> of regexes that will filter out tags so they are not present in the generated report.
-//    //  expandAllSteps: Set this to true to make all scenarios expanded in the generated report.
-//    //  notFailingStatuses: (Set<String>) Step statuses that should not be marked as failed in the report generation
-//    //  directorySuffix: String. Sets a suffix for directories.
-//}
+    val cucumberReportsDir: String = project.extra.get("cucumberReportsDir") as String
+    val reportMe = "${project.extra.get("cucumberTestEnvVarNamespace")}.cucumberReports"
+
+    outputDir = file(cucumberReportsDir)
+    buildId = System.getenv("$reportMe.buildId") ?: System.currentTimeMillis().toString()
+    reports = files("$cucumberReportsDir/cucumber.json")
+    testTasksFinalizedByReport = false
+    runWithJenkins = System.getenv("$reportMe.runWithJenkins").toBoolean()
+    projectNameOverride = System.getenv("$reportMe.projectNameOverride")
+    //todo: enable parameterization of this path
+    val trendsPath = if (System.getenv("$reportMe.trends").toBoolean()) layout.projectDirectory.dir(".gradle")
+        .file("cucumberReports.trends.json").asFile else null
+    trends = trendsPath
+    val trendsLimitValue = System.getenv("$reportMe.trendsLimit")
+    trendsLimit = trendsLimitValue?.toInt() ?: 0
+    //  todo: enable setting these configurations via env vars (or other)
+    //  classifications: A map with <String, String> pairs that are added to the HTML report, for example os name etc.
+    //                   Use the method classification to add a single classification.
+    //                   Setting this property directly will overwrite old classifications.
+    //  excludeTags: A List<String> of regexes that will filter out tags so they are not present in the generated report.
+    //  expandAllSteps: Set this to true to make all scenarios expanded in the generated report.
+    //  notFailingStatuses: (Set<String>) Step statuses that should not be marked as failed in the report generation
+    //  directorySuffix: String. Sets a suffix for directories.
+}
 
 java {
     sourceCompatibility = JavaVersion.VERSION_1_8

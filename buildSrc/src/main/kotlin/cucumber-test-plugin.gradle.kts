@@ -8,6 +8,7 @@ plugins {
 //
 //    // Apply the org.jetbrains.kotlin.jvm Plugin to add support for Kotlin.
 //    id("org.jetbrains.kotlin.jvm") version "1.4.31"
+    //   id("com.github.spacialcircumstances.gradle-cucumber-reporting")
 
 }
 
@@ -30,18 +31,6 @@ val cucumberTestImplementation: Configuration by configurations.getting {
 val cucumberTestApi: Configuration by configurations.getting {
     extendsFrom(configurations.api.get())
 }
-//https://docs.gradle.org/current/userguide/java_testing.html#sec:configuring_java_integration_tests - suggests using runtimeOnly
-//configurations["cucumberTestApi"].extendsFrom(configurations.testApi.get())
-
-
-//
-//val cucumberTestImplementation: Configuration by configurations.getting {
-//    extendsFrom(configurations.implementation.get())
-//}
-//
-//val cucumberTestApi: Configuration by configurations.getting {
-//    extendsFrom(configurations.api.get())
-//}
 ////https://docs.gradle.org/current/userguide/java_testing.html#sec:configuring_java_integration_tests - suggests using runtimeOnly
 configurations["cucumberTestApi"].extendsFrom(configurations["testApi"])//note this is different from when we were in the top level build file
 ////configurations["cucumberTestApi"].extendsFrom(configurations.testApi.get())
