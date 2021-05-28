@@ -10,6 +10,12 @@ plugins {
     // Apply the Java Gradle plugin development plugin to add support for developing Gradle plugins
     `java-gradle-plugin`
 
+
+    // Apply the java-library plugin for API and implementation separation.
+    `java-library`
+
+    `kotlin-dsl`
+
     id("maven-publish")
     id("com.gradle.plugin-publish") version "0.15.0"
 
@@ -37,16 +43,25 @@ dependencies {
 }
 
 group = "com.github.dave99galloway"
-version = "1.1"
+version = "1.4"
 
 gradlePlugin {
 
+//    plugins {
+//        create("greetingsPlugin") {
+//            id = "com.github.dave99galloway.gradle.greeting.greeting"
+//            displayName = "the default greeting plugin example"
+//            description = "the default greeting plugin example"
+//            implementationClass = "gradle.greeting.GradleGreetingPlugin"
+//        }
+//    }
+
     plugins {
-        create("greetingsPlugin") {
-            id = "gradle.greeting.greeting"
-            displayName = "the default greeting plugin example"
-            description = "the default greeting plugin example"
-            implementationClass = "gradle.greeting.GradleGreetingPlugin"
+        create("cucumberTestPlugin") {
+            id = "com.github.dave99galloway.cucumbertest.gradle.CucumberTestPlugin"
+            displayName = "cucumberTest plugin"
+            description = "a cucumber test plugin implemented using javaexec"
+            implementationClass = "com.github.dave99galloway.gradle.cucumbertest.CucumberTestPlugin"
         }
     }
 }
@@ -78,4 +93,14 @@ tasks.check {
 tasks.named<Wrapper>("wrapper") {
     gradleVersion = "7.0"
     distributionType = Wrapper.DistributionType.ALL
+}
+
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+    // The new Java toolchain feature cannot be used at the project level in combination with source and/or target compatibility
+    //    toolchain {
+    //        languageVersion.set(JavaLanguageVersion.of(8))
+    //    }
 }
