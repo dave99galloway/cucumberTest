@@ -11,6 +11,9 @@ plugins {
     // https://github.com/SpacialCircumstances/gradle-cucumber-reporting
     id("com.github.spacialcircumstances.gradle-cucumber-reporting") version "0.1.23"
 
+    id("gradle.greeting.greeting")
+
+
 }
 
 repositories {
