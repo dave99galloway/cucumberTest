@@ -297,45 +297,6 @@ configure<CucumberTestPluginExtension> {
 //
 //}
 
-interface GreetingPluginExtension {
-    val message: Property<String>
-    val greeter: Property<String>
-}
-
-class GreetingPlugin : Plugin<Project> {
-    override fun apply(project: Project) {
-        project.task("hello") {
-            val extension = project.extensions.create<GreetingPluginExtension>("greeting")
-
-
-            // core gradle task options
-            description = "says hello."
-            group = "verification"
-            extension.greeter.set("default")
-            val message = extension.message.getOrElse("Howdy")
-            doLast {
-                println("Hello from the GreetingPlugin")
-                println("$message from ${extension.greeter.get()}")
-
-            }
-        }
-
-        project.task("goodbye") {
-            doLast {
-                println("hasta la vista from the GreetingPlugin")
-            }
-        }
-    }
-}
-
-// Apply the plugin
-apply<GreetingPlugin>()
-
-// Configure the extension using a DSL block
-configure<GreetingPluginExtension> {
-    message.set("Hi")
-    // greeter.set("Gradle")
-}
 
 cucumberReports {
     // get properties set by the CucumberTestPlugin.cucumberTest task in the project extra properties
@@ -365,7 +326,6 @@ cucumberReports {
     //  notFailingStatuses: (Set<String>) Step statuses that should not be marked as failed in the report generation
     //  directorySuffix: String. Sets a suffix for directories.
 }
-
 
 java {
     sourceCompatibility = JavaVersion.VERSION_1_8

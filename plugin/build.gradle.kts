@@ -36,30 +36,25 @@ dependencies {
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit")
 }
 
-group = "org.myorg"
-version = "1.0"
+group = "com.github.dave99galloway"
+version = "1.1"
 
 gradlePlugin {
-//    // Define the plugin
-//    val greeting by plugins.creating {
-//        id = "gradle.greeting.greeting"
-//        implementationClass = "gradle.greeting.GradleGreetingPlugin"
-//    }
 
     plugins {
         create("greetingsPlugin") {
             id = "gradle.greeting.greeting"
-            displayName = "<short displayable name for plugin>"
-            description = "<Good human-readable description of what your plugin is about>"
+            displayName = "the default greeting plugin example"
+            description = "the default greeting plugin example"
             implementationClass = "gradle.greeting.GradleGreetingPlugin"
         }
     }
 }
 
 pluginBundle {
-    website = "<substitute your project website>"
-    vcsUrl = "<uri to project source repository>"
-    tags = listOf("tags", "for", "your", "plugins")
+    website = "https://github.com/dave99galloway/cucumberTest"
+    vcsUrl = "https://github.com/dave99galloway/cucumberTest"
+    tags = listOf("cucumber", "gradle", "plugin", "kotlin")
 }
 
 // Add a source set for the functional test suite
@@ -78,4 +73,9 @@ val functionalTest by tasks.registering(Test::class) {
 tasks.check {
     // Run the functional tests as part of `check`
     dependsOn(functionalTest)
+}
+
+tasks.named<Wrapper>("wrapper") {
+    gradleVersion = "7.0"
+    distributionType = Wrapper.DistributionType.ALL
 }
