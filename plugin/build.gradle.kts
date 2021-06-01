@@ -60,7 +60,12 @@ gradlePlugin {
         create("cucumberTestPlugin") {
             id = "com.github.dave99galloway.cucumbertest.gradle.CucumberTestPlugin"
             displayName = "cucumberTest plugin"
-            description = "a cucumber test plugin implemented using javaexec"
+            description = """A cucumber gradle plugin implemented using javaexec. 
+This plugin adds a task called 'cucumberTest' to your cucumber-jvm project enabling you to run tests through gradle using
+the cucumber cli. Configuration is done at the plugin level and the options to do this are documented in 
+com.github.dave99galloway.gradle.cucumbertest.CucumberTestPluginExtension
+                
+            """
             implementationClass = "com.github.dave99galloway.gradle.cucumbertest.CucumberTestPlugin"
         }
     }
