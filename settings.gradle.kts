@@ -8,3 +8,7 @@
  */
 
 rootProject.name = "cucumberTest"
+pluginManagement {
+    @Suppress("UnstableApiUsage")
+    includeBuild("plugin")
+}
