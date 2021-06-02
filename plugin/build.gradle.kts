@@ -43,7 +43,7 @@ dependencies {
 }
 
 group = "com.github.dave99galloway"
-version = "1.4"
+version = "1.4.0"
 
 gradlePlugin {
 
@@ -64,6 +64,17 @@ gradlePlugin {
 This plugin adds a task called 'cucumberTest' to your cucumber-jvm project enabling you to run tests through gradle using
 the cucumber cli. Configuration is done at the plugin level and the options to do this are documented in 
 com.github.dave99galloway.gradle.cucumbertest.CucumberTestPluginExtension
+
+To use this plugin, follow the provided kotlin dsl instructions below
+Limitations / Pre-Requisites :-
+ - this plugin has only been tested with Kotlin DSL and Kotlin implementation code. Groovy DSL and Java implementation are not supported
+ - you must have a source set called cucumberTest (and a cucumberTestImplementation Configuration extending configurations.implementation
+ - you must have a source set called main
+ - all your cucumber test code must liven in either or both of these source sets
+ - you need to add these dependencies manually (replace cucumberVersion with your cucumber-jvm version or add a gradle property and reference it in your build.gradle):
+implementation(group = "io.cucumber", name = "cucumber-java8", version = cucumberVersion)
+implementation(group = "io.cucumber", name = "cucumber-java", version = cucumberVersion)
+implementation(group = "io.cucumber", name = "cucumber-junit", version = cucumberVersion)
                 
             """
             implementationClass = "com.github.dave99galloway.gradle.cucumbertest.CucumberTestPlugin"
@@ -74,7 +85,7 @@ com.github.dave99galloway.gradle.cucumbertest.CucumberTestPluginExtension
 pluginBundle {
     website = "https://github.com/dave99galloway/cucumberTest"
     vcsUrl = "https://github.com/dave99galloway/cucumberTest"
-    tags = listOf("cucumber", "gradle", "plugin", "kotlin")
+    tags = listOf("cucumber", "cucumber-jvm", "kotlin")
 }
 
 // Add a source set for the functional test suite
